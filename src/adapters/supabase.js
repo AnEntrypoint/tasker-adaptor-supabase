@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import StorageAdapter from '../core/storage-adapter.js';
+import { StorageAdapter } from 'tasker-adaptor';
 
 /**
  * Supabase storage adapter
