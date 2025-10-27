@@ -1,14 +1,15 @@
 # tasker-adaptor-supabase
 
-Supabase-specific adaptor for tasker-sequential with PostgreSQL backend and edge function deployment.
+Supabase-specific storage adaptor for tasker-sequential with PostgreSQL backend.
 
 ## Architecture
 
 tasker-adaptor-supabase provides:
 - **SupabaseAdapter**: Implements StorageAdapter interface for PostgreSQL
-- **Edge Functions**: Supabase-specific endpoint wrappers
 - **Database Schema**: PostgreSQL migrations for task execution
-- **Service Wrappers**: Integration with Google APIs, keystore, etc.
+- **Supabase Configuration**: Project-level config for edge function deployment
+
+Note: HTTP service implementations are in **tasker-wrapped-services** package. This adaptor only contains the Supabase storage backend.
 
 ## Storage Adapter
 
@@ -30,19 +31,21 @@ const executor = new TaskExecutor(adapter);
 const result = await executor.execute(taskRun, taskCode);
 ```
 
-## Edge Functions
+## Wrapped Services
 
-Edge function endpoints wrap core task execution for Supabase deployment:
+Service implementations (deno-executor, task-executor, wrapped services) are in **tasker-wrapped-services** package:
 
-- **`tasks/index.ts`** - Main task submission and execution endpoint
-- **`deno-executor/index.ts`** - Deno-based task runtime (uses TaskExecutor)
-- **`simple-stack-processor/index.ts`** - Stack run processor (processes pending operations)
-- **`wrappedgapi/index.ts`** - Google API wrapper for wrapped service calls
-- **`wrappedkeystore/index.ts`** - Credential storage wrapper
-- **`wrappedsupabase/index.ts`** - Database operation proxy
-- **`wrappedopenai/index.ts`** - OpenAI API wrapper
-- **`wrappedwebsearch/index.ts`** - Web search integration wrapper
-- **`admin-debug/index.ts`** - Debugging and admin utilities
+- **deno-executor** - Task runtime with suspend/resume
+- **simple-stack-processor** - Stack run processor
+- **task-executor** - Task submission and lifecycle
+- **gapi** - Google API wrapper
+- **keystore** - Credential storage
+- **supabase** - Database operation proxy
+- **openai** - OpenAI API wrapper
+- **websearch** - Web search integration
+- **admin-debug** - Debugging utilities
+
+These services are runtime-agnostic (Deno, Node.js, Bun) and can be wrapped as Supabase edge functions on deployment.
 
 ## Database Schema
 
@@ -127,44 +130,35 @@ Start Supabase with migrations:
 supabase start
 ```
 
-Serve edge functions:
+Start wrapped services (from tasker-wrapped-services):
 ```bash
-supabase functions serve tasks deno-executor simple-stack-processor wrappedgapi wrappedkeystore wrappedsupabase
+cd packages/tasker-wrapped-services
+npx tasker --port 3100
 ```
 
-### Production Deployment
+### Production Deployment to Supabase
 
-Deploy to Supabase cloud:
+For Supabase cloud deployment, wrap the services from tasker-wrapped-services as edge functions:
+
 ```bash
 supabase link --project-ref your-project
-supabase push
+supabase push  # Pushes migrations only from this adaptor
 ```
 
-## Service Wrappers
+Then deploy tasker-wrapped-services code to Supabase functions separately or use the deployment guide in tasker-wrapped-services/CLAUDE.md
 
-All external integrations use wrapped edge functions:
+## Service Implementations
 
-**wrappedgapi** - Google API calls
-- Authenticates with service account credentials
-- Supports domain impersonation for admin APIs
-- Caches credentials in keystore
+All external service integrations are implemented in **tasker-wrapped-services**:
 
-**wrappedkeystore** - Credential management
-- Stores/retrieves credentials (gapi, emails, tokens)
-- Uses Supabase as backend
+See `packages/tasker-wrapped-services/CLAUDE.md` for details on:
+- **gapi** - Google API calls with service account auth
+- **keystore** - Credential storage and retrieval
+- **supabase** - Database operation proxy
+- **openai** - OpenAI API integration
+- **websearch** - Web search integration
 
-**wrappedsupabase** - Database operations
-- Proxies all database queries
-- Implements query chaining for complex operations
-- Handles transactions
-
-**wrappedopenai** - OpenAI integration
-- Calls OpenAI APIs with stored credentials
-- Supports all OpenAI models and endpoints
-
-**wrappedwebsearch** - Web search
-- Searches the web and returns results
-- Integrates with external search APIs
+These services are runtime-agnostic and can run on Deno, Node.js, or Bun.
 
 ## Task Execution Flow
 
@@ -205,3 +199,4 @@ supabase functions logs tasks --local
 - **tasker-sequential** - Core task execution engine (deployment-agnostic)
 - **tasker-adaptor** - Base adaptor interface and execution logic
 - **tasker-adaptor-sqlite** - SQLite adaptor for local development
+- **tasker-wrapped-services** - Runtime-agnostic HTTP service implementations (deno-executor, wrapped services, etc.)
