@@ -22,7 +22,9 @@
   "license": "MIT",
   "dependencies": {
     "@supabase/supabase-js": "^2.58.0",
-    "tasker-adaptor": "^1.0.0"
+    "tasker-adaptor": "^1.0.0",
+    "tasker-storage-utils": "^1.0.0",
+    "tasker-validators": "^1.0.0"
   },
   "devDependencies": {
     "dotenv": "^16.4.7"

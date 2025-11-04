@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { StorageAdapter } from 'tasker-adaptor';
+import { nowISO } from 'tasker-utils/timestamps';
 
 /**
  * Supabase storage adapter
@@ -130,7 +131,7 @@ export class SupabaseAdapter extends StorageAdapter {
         identifier: taskFunction.identifier,
         code: taskFunction.code,
         metadata: taskFunction.metadata,
-        updated_at: new Date().toISOString()
+        updated_at: nowISO()
       }, { onConflict: 'identifier' })
       .select()
       .single();
@@ -156,7 +157,7 @@ export class SupabaseAdapter extends StorageAdapter {
       .upsert({
         key,
         value: typeof value === 'string' ? value : JSON.stringify(value),
-        updated_at: new Date().toISOString()
+        updated_at: nowISO()
       }, { onConflict: 'key' });
 
     if (error) throw error;
