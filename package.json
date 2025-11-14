@@ -1,7 +1,7 @@
 {
-  "name": "tasker-adaptor-supabase",
+  "name": "sequential-adaptor-supabase",
   "version": "1.0.0",
-  "description": "Supabase storage backend for tasker-sequential via tasker-adaptor",
+  "description": "Supabase storage backend for sequential-runner via tasker-adaptor",
   "type": "module",
   "main": "src/index.js",
   "exports": {
@@ -11,7 +11,7 @@
     "test": "node tests/test-supabase-adapter.js"
   },
   "keywords": [
-    "tasker",
+    "sequential",
     "sequential",
     "adapter",
     "storage",
@@ -22,9 +22,9 @@
   "license": "MIT",
   "dependencies": {
     "@supabase/supabase-js": "^2.58.0",
-    "tasker-adaptor": "^1.0.0",
-    "tasker-storage-utils": "^1.0.0",
-    "tasker-validators": "^1.0.0"
+    "sequential-adaptor": "^1.0.0",
+    "sequential-storage-utils": "^1.0.0",
+    "sequential-validators": "^1.0.0"
   },
   "devDependencies": {
     "dotenv": "^16.4.7"
